@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: backend-rust
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    container_name: frontend-nextjs
+    build:
+      context: ./frontend
+    tty: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  db:
+    container_name: db
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    volumes:
+      - db-store:/var/lib/postgresql/data
+    networks:
+      - default
+
+volumes:
+  db-store:
+
+networks:
+  default:
+    driver: bridge
